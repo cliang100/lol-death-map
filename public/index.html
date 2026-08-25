@@ -8,31 +8,54 @@
 
     <input type="text" id="riotId" placeholder="Game name + #NA1">
     <button id="searchBtn">Search</button>
-    <pre id="results"></pre>
+
+    <div style="position: relative; width: 512px; height: 512px;">
+        <img src="rift.png" width="512" height="512" style="position: absolute; top: 0; left: 0;">
+        <canvas id="heatmapCanvas" width="512" height="512" style="position: absolute; top: 0; left: 0;"></canvas>
+    </div>
+    <pre id="deathList"></pre>
 
     <script>
         const searchBtn = document.getElementById('searchBtn');
-        const resultsEl = document.getElementById('results');
+        const canvas = document.getElementById('heatmapCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function gameToCanvas(x, y, canvasSize = 512) {
+            const minX = -120, maxX = 14870;
+            const minY = -120, maxY = 14980;
+
+            const canvasX = ((x - minX) / (maxX - minX)) * canvasSize;
+            const canvasY = canvasSize - ((y - minY) / (maxY - minY)) * canvasSize; // flip Y
+
+            return { canvasX, canvasY };
+        }
 
         searchBtn.addEventListener('click', async () => {
             const raw = document.getElementById('riotId').value;
             const [gameName, tagLine] = raw.split('#').map(s => s.trim());
 
             if (!gameName || !tagLine) {
-                resultsEl.textContent = 'Enter a Riot ID like Name#Tag';
+                alert('Enter a Riot ID like Name#Tag');
                 return;
             }
 
-            resultsEl.textContent = 'loading...';
+            const res = await fetch(`/api/deaths/${gameName}/${tagLine}`);
+            const deaths = await res.json();
 
-            try {
-                const res = await fetch(`/api/deaths/${gameName}/${tagLine}`);
-                const deaths = await res.json();
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // wipe any dots from a previous search
 
-                resultsEl.textContent = JSON.stringify(deaths, null, 2);
-            } catch (err) {
-                resultsEl.textContent = 'something went wrong.';
+            for (const death of deaths) {
+                const { canvasX, canvasY } = gameToCanvas(death.x, death.y);
+
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, 4, 0, Math.PI * 2);
+                ctx.fillStyle = 'red';
+                ctx.fill();
             }
+            const resultsList = deaths.map(d => {
+                return `${d.time} - killed by ${d.killedBy} (match ${d.matchId})`;
+            }).join('\n');
+            document.getElementById('deathList').textContent = resultsList;
         });
     </script>
 </body>
