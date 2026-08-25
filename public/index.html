@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LoL Death Map</title>
+</head>
+<body>
+    <h1>LoL Death Map</h1>
+
+    <input type="text" id="riotId" placeholder="Game name + #NA1">
+    <button id="searchBtn">Search</button>
+    <pre id="results"></pre>
+
+    <script>
+        const searchBtn = document.getElementById('searchBtn');
+        const resultsEl = document.getElementById('results');
+
+        searchBtn.addEventListener('click', async () => {
+            const raw = document.getElementById('riotId').value;
+            const [gameName, tagLine] = raw.split('#').map(s => s.trim());
+
+            if (!gameName || !tagLine) {
+                resultsEl.textContent = 'Enter a Riot ID like Name#Tag';
+                return;
+            }
+
+            resultsEl.textContent = 'loading...';
+
+            try {
+                const res = await fetch(`/api/deaths/${gameName}/${tagLine}`);
+                const deaths = await res.json();
+
+                resultsEl.textContent = JSON.stringify(deaths, null, 2);
+            } catch (err) {
+                resultsEl.textContent = 'something went wrong.';
+            }
+        });
+    </script>
+</body>
+</html>

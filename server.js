@@ -4,6 +4,8 @@ const { getDeathData } = require('./riotApi');
 const app = express();
 const PORT = 3000;
 
+app.use(express.static('public'));
+
 app.get('/api/deaths/:gameName/:tagLine', async(req, res) => {
     const { gameName, tagLine } = req.params;
 
