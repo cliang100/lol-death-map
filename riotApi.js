@@ -14,6 +14,7 @@ async function getDeathData(gameName, tagLine) {
     const accountUrl = `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${gameName}/${tagLine}?api_key=${apiKey}`;
     const accountRes = await fetch(accountUrl);
     const account = await accountRes.json();
+    console.log(account);
     const puuid = account.puuid;
 
     // Get matchIds

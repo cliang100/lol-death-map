@@ -1,46 +1,21 @@
-const http = require('http');
-const url = require('url');
+const express = require('express');
+const { getDeathData } = require('./riotApi');
 
-const users = [
-    { id: 1, name: 'Alice' },
-    { id: 2, name: 'Bob' },
-];
+const app = express();
+const PORT = 3000;
 
-const routes = {
-    'GET /': (req, res) => {
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Home page\n');
-    },
-    'GET /greet': (req, res, query) => {
-        const name = query.name || 'stranger';
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end(`Hello, ${name}!\n`);
-    },
-    'GET /api/users': (req, res) => {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(users));
-    },
-};
+app.get('/api/deaths/:gameName/:tagLine', async(req, res) => {
+    const { gameName, tagLine } = req.params;
 
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
-    const path = parsedUrl.pathname;
-    const query = parsedUrl.query;
-
-    console.log(`${req.method} ${req.url}`);
-
-    const routeKey = `${req.method} ${path}`;
-    const handler = routes[routeKey];
-
-    if (handler) {
-        handler(req, res, query);
-    } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Not found\n');
+    try {
+        const deaths = await getDeathData(gameName, tagLine);
+        res.json(deaths);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch dath data' });
     }
 });
 
-const PORT = 3000;
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
