@@ -40,11 +40,17 @@
             }
 
             const res = await fetch(`/api/deaths/${gameName}/${tagLine}`);
+
+            if (!res.ok) {
+                document.getElementById('deathList').textContent = 'Could not find that summoner. Check the name and tag.';
+                return;
+            }
+            
             const deaths = await res.json();
 
             ctx.clearRect(0, 0, canvas.width, canvas.height); // wipe any dots from a previous search
             
-            ctx.globalCompositionOperation = 'lighter';
+            ctx.globalCompositeOperation = 'lighter';
 
             for (const death of deaths) {
                 const { canvasX, canvasY } = gameToCanvas(death.x, death.y);
@@ -59,7 +65,7 @@
             }
 
             ctx.globalCompositeOperation = 'source-over';
-            
+
             const resultsList = deaths.map(d => {
                 return `${d.time} - killed by ${d.killedBy} (match ${d.matchId})`;
             }).join('\n');
