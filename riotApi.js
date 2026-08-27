@@ -18,7 +18,7 @@ async function getDeathData(gameName, tagLine) {
     const puuid = account.puuid;
 
     // Get matchIds
-    const idsUrl = `https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=5&api_key=${apiKey}`;
+    const idsUrl = `https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=20&api_key=${apiKey}`;
     const idsRes = await fetch(idsUrl);
     const matchIds = await idsRes.json();
 

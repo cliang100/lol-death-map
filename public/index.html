@@ -43,15 +43,23 @@
             const deaths = await res.json();
 
             ctx.clearRect(0, 0, canvas.width, canvas.height); // wipe any dots from a previous search
+            
+            ctx.globalCompositionOperation = 'lighter';
 
             for (const death of deaths) {
                 const { canvasX, canvasY } = gameToCanvas(death.x, death.y);
 
-                ctx.beginPath();
-                ctx.arc(canvasX, canvasY, 4, 0, Math.PI * 2);
-                ctx.fillStyle = 'red';
-                ctx.fill();
+                const RADIUS = 20;
+                const gradient = ctx.createRadialGradient(canvasX, canvasY, 0, canvasX, canvasY, RADIUS);
+                gradient.addColorStop(0, 'rgba(255,0,0,0.4)');
+                gradient.addColorStop(1, 'rgba(255,0,0,0)');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(canvasX - RADIUS, canvasY - RADIUS, RADIUS * 2, RADIUS * 2);
             }
+
+            ctx.globalCompositeOperation = 'source-over';
+            
             const resultsList = deaths.map(d => {
                 return `${d.time} - killed by ${d.killedBy} (match ${d.matchId})`;
             }).join('\n');
