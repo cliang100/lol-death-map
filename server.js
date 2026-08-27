@@ -10,7 +10,9 @@ app.get('/api/deaths/:gameName/:tagLine', async(req, res) => {
     const { gameName, tagLine } = req.params;
 
     try {
+        console.time('getDeathData');
         const deaths = await getDeathData(gameName, tagLine);
+        console.timeEnd('getDeathData');
         res.json(deaths);
     } catch (err) {
         console.error(err);

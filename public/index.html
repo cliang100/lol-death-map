@@ -30,6 +30,30 @@
             return { canvasX, canvasY };
         }
 
+        function intensityToColor(alpha) {
+            const stops = [
+                [0, [0, 0, 255]],   // blue
+                [85, [0, 255, 0]],  // green
+                [170, [255, 255, 0]],   // yellow
+                [255, [255, 0, 0]], // red
+            ];
+
+            for (let i = 0; i < stops.length - 1; i ++) {
+                const [t1, c1] = stops[i];
+                const [t2, c2] = stops[i + 1];
+
+                if (alpha >= t1 && alpha <= t2) {
+                    const ratio = (alpha - t1) / (t2 - t1);
+                    return [
+                        Math.round(c1[0] + (c2[0] - c1[0]) * ratio),
+                        Math.round(c1[1] + (c2[1] - c1[1]) * ratio),
+                        Math.round(c1[2] + (c2[2] - c1[2]) * ratio),
+                    ];
+                }
+            }
+            return stops[stops.length - 1][1];
+        }
+
         searchBtn.addEventListener('click', async () => {
             const raw = document.getElementById('riotId').value;
             const [gameName, tagLine] = raw.split('#').map(s => s.trim());
@@ -54,7 +78,6 @@
             const deaths = await res.json();
 
             ctx.clearRect(0, 0, canvas.width, canvas.height); // wipe any dots from a previous search
-            
             ctx.globalCompositeOperation = 'lighter';
 
             for (const death of deaths) {
@@ -62,14 +85,30 @@
 
                 const RADIUS = 20;
                 const gradient = ctx.createRadialGradient(canvasX, canvasY, 0, canvasX, canvasY, RADIUS);
-                gradient.addColorStop(0, 'rgba(255,0,0,0.4)');
-                gradient.addColorStop(1, 'rgba(255,0,0,0)');
+                gradient.addColorStop(0, 'rgba(255,255,255,0.4)');
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');
 
                 ctx.fillStyle = gradient;
                 ctx.fillRect(canvasX - RADIUS, canvasY - RADIUS, RADIUS * 2, RADIUS * 2);
             }
 
             ctx.globalCompositeOperation = 'source-over';
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imageData.data;
+
+            for (let i = 0; i < pixels.length; i += 4) {
+                const alpha = pixels[i + 3];
+
+                if (alpha === 0) continue;
+
+                const [r, g, b] = intensityToColor(alpha);
+                pixels[i] = r;
+                pixels[i + 1] = g;
+                pixels[i + 2] = b;
+            }
+
+            ctx.putImageData(imageData, 0, 0);
 
             const resultsList = deaths.map(d => {
                 return `${d.time} - killed by ${d.killedBy} (match ${d.matchId})`;

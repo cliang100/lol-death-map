@@ -26,13 +26,13 @@ async function getDeathData(gameName, tagLine) {
     const allDeaths = [];
 
     for (const matchId of matchIds) {
-        const [timelineRes, matchRes] = await Promise.all([
-            fetch(`https://americas.api.riotgames.com/lol/match/v5/matches/${matchId}/timeline?api_key=${apiKey}`),
-            fetch(`https://americas.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`)
-        ]);
-
-        const timeline = await timelineRes.json();
+        const matchRes = await fetch(`https://americas.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`);
         const match = await matchRes.json();
+        
+        if (match.info.mapId !== 11) continue;  // only show SR games
+
+        const timelineRes = await fetch(`https://americas.api.riotgames.com/lol/match/v5/matches/${matchId}/timeline?api_key=${apiKey}`);
+        const timeline = await timelineRes.json();
         
         const me = match.info.participants.find(p => p.puuid === puuid);
         const myId = me.participantId;
@@ -65,7 +65,9 @@ async function getDeathData(gameName, tagLine) {
 module.exports = { getDeathData };
 
 if (require.main === module) {
+    console.time('getDeathData');
     getDeathData('Senyuuto', 'FAKER').then(deaths => {
         console.log(deaths);
+        console.timeEnd('getDeathData');
     });
 }
