@@ -2,14 +2,17 @@
 <html>
 <head>
     <title>LoL Death Map</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>LoL Death Map</h1>
 
-    <input type="text" id="riotId" placeholder="Game name + #NA1">
-    <button id="searchBtn">Search</button>
+    <div class="search-bar">
+        <input type="text" id="riotId" placeholder="Game name + #NA1">
+        <button id="searchBtn">Search</button>
+    </div>
 
-    <div style="position: relative; width: 512px; height: 512px;">
+    <div class="map-container">
         <img src="rift.png" width="512" height="512" style="position: absolute; top: 0; left: 0;">
         <canvas id="heatmapCanvas" width="512" height="512" style="position: absolute; top: 0; left: 0;"></canvas>
     </div>

@@ -1,0 +1,65 @@
+body {
+    font-family: system-ui, sans-serif;
+    background: #1e1e24;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+#riotId {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #2a2a32;
+    color: #eee;
+    font-size: 14px;
+    width: 240px;
+}
+
+#searchBtn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    background: #4a7dff;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#searchBtn:disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+
+.map-container {
+    position: relative;
+    width: 512px;
+    height: 512px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+#deathList {
+    margin-top: 20px;
+    width: 512px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #2a2a32;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+}
