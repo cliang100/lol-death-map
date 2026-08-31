@@ -33,6 +33,11 @@ async function getDeathData(gameName, tagLine) {
     const idsRes = await limitedFetch(idsUrl);
     const matchIds = await idsRes.json();
 
+    if (!idsRes.ok) {
+        console.log('MatchIds fetch failed:', idsRes.status, matchIds);
+        throw new Error(`Failed to fetch match list for ${gameName}#${tagLine}`);
+    }
+
     const matchResults = await Promise.all(
         matchIds.map(async matchId => {
             const matchRes = await limitedFetch(`https://americas.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`);
