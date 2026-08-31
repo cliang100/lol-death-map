@@ -2,6 +2,22 @@ require('dotenv').config();
 const Bottleneck = require('bottleneck');
 
 const apiKey = process.env.RIOT_API_KEY;
+const cache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 min
+
+function getCached(key) {
+    const entry = cache.get(key);
+    if (!entry) return null;
+    if (Date.now() - entry.timestamp > CACHE_TTL) {
+        cache.delete(key);
+        return null;
+    }
+    return entry.data;
+}
+
+function setCached(key, data) {
+    cache.set(key, { data, timestamp: Date.now() });
+}
 
 // Riot dev key limits: 20 req/sec, 100 req/2min
 const limiter = new Bottleneck({
@@ -24,6 +40,12 @@ function msToClock(ms) {
 }
 
 async function getDeathData(gameName, tagLine) {
+    const cacheKey = `${gameName}#${tagLine}`.toLowerCase();
+    const cached = getCached(cacheKey);
+    if (cached) {
+        console.log('Cache hit:', cacheKey);
+        return cached;
+    }
     const accountUrl = `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${gameName}/${tagLine}?api_key=${apiKey}`;
     const accountRes = await limitedFetch(accountUrl);
     const account = await accountRes.json();
@@ -99,6 +121,7 @@ async function getDeathData(gameName, tagLine) {
         });
     }
 
+    setCached(cacheKey, allDeaths);
     return allDeaths;
 }
 
