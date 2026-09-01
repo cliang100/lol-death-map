@@ -113,10 +113,11 @@
 
             ctx.putImageData(imageData, 0, 0);
 
-            const resultsList = deaths.map(d => {
-                return `${d.time} - killed by ${d.killedBy} (match ${d.matchId})`;
-            }).join('\n');
-            document.getElementById('deathList').textContent = resultsList;
+            const matchCount = new Set(deaths.map(d => d.matchId)).size;
+            const deathListEl = document.getElementById('deathList');
+            deathListEl.textContent = `${deaths.length} deaths across ${matchCount} games`;
+            deathListEl.style.display = 'block';
+            document.getElementById('deathList').textContent = `${deaths.length} deaths across ${matchCount} games`;
             searchBtn.disabled = false;
             searchBtn.textContent = 'Search';
         });

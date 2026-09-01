@@ -53,6 +53,7 @@ h1 {
 }
 
 #deathList {
+    display: none;
     margin-top: 20px;
     width: 512px;
     max-height: 200px;
