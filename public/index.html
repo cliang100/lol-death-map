@@ -16,6 +16,11 @@
         <img src="rift.png" width="512" height="512" style="position: absolute; top: 0; left: 0;">
         <canvas id="heatmapCanvas" width="512" height="512" style="position: absolute; top: 0; left: 0;"></canvas>
     </div>
+    <div class="legend">
+        <span>Fewer deaths</span>
+        <div class="legend-bar"></div>
+        <span>More deaths</span>
+    </div>
     <pre id="deathList"></pre>
 
     <script>
@@ -117,7 +122,6 @@
             const deathListEl = document.getElementById('deathList');
             deathListEl.textContent = `${deaths.length} deaths across ${matchCount} games`;
             deathListEl.style.display = 'block';
-            document.getElementById('deathList').textContent = `${deaths.length} deaths across ${matchCount} games`;
             searchBtn.disabled = false;
             searchBtn.textContent = 'Search';
         });
