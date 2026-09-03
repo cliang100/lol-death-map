@@ -67,7 +67,9 @@
             const [gameName, tagLine] = raw.split('#').map(s => s.trim());
 
             if (!gameName || !tagLine) {
-                alert('Enter a Riot ID like Name#Tag');
+                const deathListEl = document.getElementById('deathList');
+                deathListEl.textContent = 'Enter a Riot ID like Name#Tag';
+                deathListEl.style.display = 'block';
                 return;
             }
 
