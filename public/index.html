@@ -122,7 +122,12 @@
 
             const matchCount = new Set(deaths.map(d => d.matchId)).size;
             const deathListEl = document.getElementById('deathList');
-            deathListEl.textContent = `${deaths.length} deaths across ${matchCount} games`;
+
+            if (deaths.length === 0) {
+                deathListEl.textContent = 'No deaths found in recent Summoner\'s Rift games';
+            } else {
+                deathListEl.textContent = `${deaths.length} deaths across ${matchCount} games`;
+            }
             deathListEl.style.display = 'block';
             searchBtn.disabled = false;
             searchBtn.textContent = 'Search';
