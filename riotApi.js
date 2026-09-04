@@ -5,6 +5,12 @@ const apiKey = process.env.RIOT_API_KEY;
 const cache = new Map();
 const CACHE_TTL = 5 * 60 * 1000; // 5 min
 
+const regionToRouting = {
+    na1: 'americas', br1: 'americas', la1: 'americas', la2: 'americas', oc1: 'americas',
+    euw1: 'europe', eun1: 'europe', tr1: 'europe', ru: 'europe',
+    kr: 'asia', jp1: 'asia',
+};
+
 function getCached(key) {
     const entry = cache.get(key);
     if (!entry) return null;
@@ -19,13 +25,12 @@ function setCached(key, data) {
     cache.set(key, { data, timestamp: Date.now() });
 }
 
-// Riot dev key limits: 20 req/sec, 100 req/2min
 const limiter = new Bottleneck({
-    reservoir: 95, // slightly under 100 for safety margin
+    reservoir: 95,
     reservoirRefreshAmount: 95,
-    reservoirRefreshInterval: 120 * 1000, // 2 minutes
-    maxConcurrent: 15, // slightly under 20/sec burst limit
-    minTime: 55, // ~18 req/sec spacing as a floor
+    reservoirRefreshInterval: 120 * 1000,
+    maxConcurrent: 15,
+    minTime: 55,
 });
 
 function limitedFetch(url) {
@@ -39,19 +44,21 @@ function msToClock(ms) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
-async function getDeathData(gameName, tagLine) {
-    const cacheKey = `${gameName}#${tagLine}`.toLowerCase();
+async function getDeathData(gameName, tagLine, region = 'na1') {
+    const routing = regionToRouting[region] || 'americas';
+    const cacheKey = `${gameName}#${tagLine}#${region}`.toLowerCase();
     const cached = getCached(cacheKey);
     if (cached) {
         console.log('Cache hit:', cacheKey);
         return cached;
     }
-    const accountUrl = `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${gameName}/${tagLine}?api_key=${apiKey}`;
+
+    const accountUrl = `https://${routing}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${gameName}/${tagLine}?api_key=${apiKey}`;
     const accountRes = await limitedFetch(accountUrl);
     const account = await accountRes.json();
     const puuid = account.puuid;
 
-    const idsUrl = `https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=20&api_key=${apiKey}`;
+    const idsUrl = `https://${routing}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=20&api_key=${apiKey}`;
     const idsRes = await limitedFetch(idsUrl);
     const matchIds = await idsRes.json();
 
@@ -62,7 +69,7 @@ async function getDeathData(gameName, tagLine) {
 
     const matchResults = await Promise.all(
         matchIds.map(async matchId => {
-            const matchRes = await limitedFetch(`https://americas.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`);
+            const matchRes = await limitedFetch(`https://${routing}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`);
             const match = await matchRes.json();
 
             if (!matchRes.ok) {
@@ -80,7 +87,7 @@ async function getDeathData(gameName, tagLine) {
 
     const timelineResults = await Promise.all(
         srMatches.map(async ({ matchId, match }) => {
-            const timelineRes = await limitedFetch(`https://americas.api.riotgames.com/lol/match/v5/matches/${matchId}/timeline?api_key=${apiKey}`);
+            const timelineRes = await limitedFetch(`https://${routing}.api.riotgames.com/lol/match/v5/matches/${matchId}/timeline?api_key=${apiKey}`);
             const timeline = await timelineRes.json();
 
             if (!timelineRes.ok) {

@@ -76,7 +76,7 @@
             searchBtn.disabled = true;
             searchBtn.textContent = 'Loading...';
 
-            const res = await fetch(`/api/deaths/${gameName}/${tagLine}`);
+            const res = await fetch(`/api/deaths/na1/${gameName}/${tagLine}`);
 
             if (!res.ok) {
                 document.getElementById('deathList').textContent = 'Could not find that summoner. Check the name and tag.';

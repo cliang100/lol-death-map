@@ -6,17 +6,15 @@ const PORT = 3000;
 
 app.use(express.static('public'));
 
-app.get('/api/deaths/:gameName/:tagLine', async(req, res) => {
-    const { gameName, tagLine } = req.params;
+app.get('/api/deaths/:region/:gameName/:tagLine', async(req, res) => {
+    const { region, gameName, tagLine } = req.params;
 
     try {
-        console.time('getDeathData');
-        const deaths = await getDeathData(gameName, tagLine);
-        console.timeEnd('getDeathData');
+        const deaths = await getDeathData(gameName, tagLine, region);
         res.json(deaths);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Failed to fetch dath data' });
+        res.status(500).json({ error: 'Failed to fetch death data' });
     }
 });
 
