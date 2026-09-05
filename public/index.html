@@ -9,6 +9,19 @@
 
     <div class="search-bar">
         <input type="text" id="riotId" placeholder="Game name + #NA1">
+        <select id="region">
+            <option value="na1">NA</option>
+            <option value="euw1">EUW</option>
+            <option value="eun1">EUNE</option>
+            <option value="kr">KR</option>
+            <option value="jp1">JP</option>
+            <option value="br1">BR</option>
+            <option value="la1">LAN</option>
+            <option value="la2">LAS</option>
+            <option value="oc1">OCE</option>
+            <option value="tr1">TR</option>
+            <option value="ru">RU</option>
+        </select>
         <button id="searchBtn">Search</button>
     </div>
 
@@ -76,7 +89,8 @@
             searchBtn.disabled = true;
             searchBtn.textContent = 'Loading...';
 
-            const res = await fetch(`/api/deaths/na1/${gameName}/${tagLine}`);
+            const region = document.getElementById('region').value;
+            const res = await fetch(`/api/deaths/${region}/${gameName}/${tagLine}`);
 
             if (!res.ok) {
                 document.getElementById('deathList').textContent = 'Could not find that summoner. Check the name and tag.';
