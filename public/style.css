@@ -81,3 +81,12 @@ h1 {
     border-radius: 6px;
     background: linear-gradient(to right, blue, green, yellow, red);
 }
+
+#region {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #2a2a32;
+    color: #eee;
+    font-size: 14px;
+}
