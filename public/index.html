@@ -146,6 +146,12 @@
             searchBtn.disabled = false;
             searchBtn.textContent = 'Search';
         });
+
+        document.getElementById('riotId').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                searchBtn.click();
+            }
+        });
     </script>
 </body>
 </html>
