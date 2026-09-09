@@ -1,29 +1,18 @@
 require('dotenv').config();
-const Bottleneck = require('bottleneck');
 
+const { Redis } = require('@upstash/redis')
+const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
+const Bottleneck = require('bottleneck');
 const apiKey = process.env.RIOT_API_KEY;
-const cache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5 min
 
 const regionToRouting = {
     na1: 'americas', br1: 'americas', la1: 'americas', la2: 'americas', oc1: 'americas',
     euw1: 'europe', eun1: 'europe', tr1: 'europe', ru: 'europe',
     kr: 'asia', jp1: 'asia',
 };
-
-function getCached(key) {
-    const entry = cache.get(key);
-    if (!entry) return null;
-    if (Date.now() - entry.timestamp > CACHE_TTL) {
-        cache.delete(key);
-        return null;
-    }
-    return entry.data;
-}
-
-function setCached(key, data) {
-    cache.set(key, { data, timestamp: Date.now() });
-}
 
 const limiter = new Bottleneck({
     reservoir: 95,
@@ -33,9 +22,11 @@ const limiter = new Bottleneck({
     minTime: 55,
 });
 
+
 function limitedFetch(url) {
     return limiter.schedule(() => fetch(url));
 }
+
 
 function msToClock(ms) {
     const totalSeconds = Math.floor(ms / 1000);
@@ -44,10 +35,11 @@ function msToClock(ms) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
+
 async function getDeathData(gameName, tagLine, region = 'na1') {
     const routing = regionToRouting[region] || 'americas';
     const cacheKey = `${gameName}#${tagLine}#${region}`.toLowerCase();
-    const cached = getCached(cacheKey);
+    const cached = await redis.get(cacheKey);
     if (cached) {
         console.log('Cache hit:', cacheKey);
         return cached;
@@ -128,9 +120,10 @@ async function getDeathData(gameName, tagLine, region = 'na1') {
         });
     }
 
-    setCached(cacheKey, allDeaths);
+    await redis.set(cacheKey, allDeaths, { ex: 300 });
     return allDeaths;
 }
+
 
 module.exports = { getDeathData };
 
