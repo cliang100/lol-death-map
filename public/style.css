@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500&display=swap');
+
 body {
-    font-family: system-ui, sans-serif;
-    background: #1e1e24;
-    color: #eee;
+    font-family: 'Inter', sans-serif;
+    background: #12100D;
+    color: #CFC9BC;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -9,7 +11,12 @@ body {
 }
 
 h1 {
-    margin-bottom: 20px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    border-bottom: 2px solid #E8B34C;
+    padding-bottom: 12px;
 }
 
 .search-bar {
@@ -32,8 +39,9 @@ h1 {
     padding: 8px 16px;
     border-radius: 6px;
     border: none;
-    background: #4a7dff;
-    color: white;
+    background: #E8B34C;
+    color: #12100D;
+    font-weight: 600;
     font-size: 14px;
     cursor: pointer;
 }
