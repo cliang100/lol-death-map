@@ -93,6 +93,10 @@
             ctx.putImageData(imageData, 0, 0);
         }
 
+        // TODO: Revisit what data dots should surface - currently just time + killer.
+        // Consider: per-game grouping/filtering (like u.gg's match-by-match breakdown),
+        // possibly alongside the map rather than only via tooltip. May need a UI rework,
+        // not just a styling pass.
         function renderDots(deaths) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -174,6 +178,9 @@
             searchBtn.textContent = 'Search';
         });
 
+        // TODO: Switch from click to hover for showing death info (mousemove instead of click listener)
+        // TODO: Dot styling feels jarring (plain white) - explore softer color/opacity, plus a
+        //       hover animation or glow effect instead of a static circle
         canvas.addEventListener('click', (e) => {
             if (currentMode !== 'dots') return;
 

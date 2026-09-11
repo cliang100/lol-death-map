@@ -110,3 +110,25 @@ h1 {
     pointer-events: none;
     z-index: 10;
 }
+
+.view-toggle {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.view-toggle button {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #2a2a32;
+    color: #CFC9BC;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.view-toggle button.active {
+    background: #E8B34C;
+    color: #12100D;
+    font-weight: 600;
+}
