@@ -34,12 +34,19 @@
         <div class="legend-bar"></div>
         <span>More deaths</span>
     </div>
+    <div class="view-toggle">
+        <button id="heatmapModeBtn" class="active">Heatmap</button>
+        <button id="dotsModeBtn">Dots</button>
+    </div>
+    <div id="dotTooltip" class="tooltip"></div>
     <pre id="deathList"></pre>
 
     <script>
         const searchBtn = document.getElementById('searchBtn');
         const canvas = document.getElementById('heatmapCanvas');
         const ctx = canvas.getContext('2d');
+        let lastDeaths = []
+        let currentMode = 'heatmap';
 
         function gameToCanvas(x, y, canvasSize = 512) {
             const minX = -120, maxX = 14870;
@@ -49,6 +56,56 @@
             const canvasY = canvasSize - ((y - minY) / (maxY - minY)) * canvasSize; // flip Y
 
             return { canvasX, canvasY };
+        }
+
+        function renderHeatmap(deaths) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // wipe any dots from a previous search
+            ctx.globalCompositeOperation = 'lighter';
+
+            for (const death of deaths) {
+                const { canvasX, canvasY } = gameToCanvas(death.x, death.y);
+
+                const RADIUS = 20;
+                const gradient = ctx.createRadialGradient(canvasX, canvasY, 0, canvasX, canvasY, RADIUS);
+                gradient.addColorStop(0, 'rgba(255,255,255,0.4)');
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(canvasX - RADIUS, canvasY - RADIUS, RADIUS * 2, RADIUS * 2);
+            }
+
+            ctx.globalCompositeOperation = 'source-over';
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imageData.data;
+
+            for (let i = 0; i < pixels.length; i += 4) {
+                const alpha = pixels[i + 3];
+
+                if (alpha === 0) continue;
+
+                const [r, g, b] = intensityToColor(alpha);
+                pixels[i] = r;
+                pixels[i + 1] = g;
+                pixels[i + 2] = b;
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function renderDots(deaths) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (const death of deaths) {
+                const { canvasX, canvasY } = gameToCanvas(death.x, death.y);
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.strokeStyle = '#12100D';
+                ctx.lineWidth = 1.5;
+                ctx.fill();
+                ctx.stroke();
+            }
         }
 
         function intensityToColor(alpha) {
@@ -100,41 +157,11 @@
             }
 
             const deaths = await res.json();
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // wipe any dots from a previous search
-            ctx.globalCompositeOperation = 'lighter';
-
-            for (const death of deaths) {
-                const { canvasX, canvasY } = gameToCanvas(death.x, death.y);
-
-                const RADIUS = 20;
-                const gradient = ctx.createRadialGradient(canvasX, canvasY, 0, canvasX, canvasY, RADIUS);
-                gradient.addColorStop(0, 'rgba(255,255,255,0.4)');
-                gradient.addColorStop(1, 'rgba(0,0,0,0)');
-
-                ctx.fillStyle = gradient;
-                ctx.fillRect(canvasX - RADIUS, canvasY - RADIUS, RADIUS * 2, RADIUS * 2);
-            }
-
-            ctx.globalCompositeOperation = 'source-over';
-            
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const pixels = imageData.data;
-
-            for (let i = 0; i < pixels.length; i += 4) {
-                const alpha = pixels[i + 3];
-
-                if (alpha === 0) continue;
-
-                const [r, g, b] = intensityToColor(alpha);
-                pixels[i] = r;
-                pixels[i + 1] = g;
-                pixels[i + 2] = b;
-            }
-
-            ctx.putImageData(imageData, 0, 0);
-
             const matchCount = new Set(deaths.map(d => d.matchId)).size;
+
+            lastDeaths = deaths;
+            renderHeatmap(deaths);
+
             const deathListEl = document.getElementById('deathList');
 
             if (deaths.length === 0) {
@@ -147,10 +174,56 @@
             searchBtn.textContent = 'Search';
         });
 
+        canvas.addEventListener('click', (e) => {
+            if (currentMode !== 'dots') return;
+
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            let closest = null;
+            let closestDist = Infinity;
+
+            for (const death of lastDeaths) {
+                const { canvasX, canvasY } = gameToCanvas(death.x, death.y);
+                const dist = Math.hypot(clickX - canvasX, clickY - canvasY);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closest = death;
+                }
+            }
+
+            const tooltip = document.getElementById('dotTooltip');
+
+            if (closest && closestDist < 10) {
+                tooltip.textContent = `${closest.time} - killed by ${closest.killedBy}`;
+                tooltip.style.left = `${clickX + 10}px`;
+                tooltip.style.top = `${clickY + 10}px`;
+                tooltip.style.display = 'block';
+            } else {
+                tooltip.style.display = 'none';
+            }
+        });
+
         document.getElementById('riotId').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 searchBtn.click();
             }
+        });
+
+        document.getElementById('heatmapModeBtn').addEventListener('click', () => {
+            currentMode = 'heatmap';
+            document.getElementById('heatmapModeBtn').classList.add('active');
+            document.getElementById('dotsModeBtn').classList.remove('active');
+            document.getElementById('dotTooltip').style.display = 'none';
+            renderHeatmap(lastDeaths);
+        });
+
+        document.getElementById('dotsModeBtn').addEventListener('click', () => {
+            currentMode = 'dots';
+            document.getElementById('dotsModeBtn').classList.add('active');
+            document.getElementById('heatmapModeBtn').classList.remove('active');
+            renderDots(lastDeaths);
         });
     </script>
 </body>

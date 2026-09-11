@@ -98,3 +98,15 @@ h1 {
     color: #eee;
     font-size: 14px;
 }
+
+.tooltip {
+    display: none;
+    position: absolute;
+    background: #2a2a32;
+    color: #CFC9BC;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 10;
+}
