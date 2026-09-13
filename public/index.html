@@ -181,19 +181,19 @@
         // TODO: Switch from click to hover for showing death info (mousemove instead of click listener)
         // TODO: Dot styling feels jarring (plain white) - explore softer color/opacity, plus a
         //       hover animation or glow effect instead of a static circle
-        canvas.addEventListener('click', (e) => {
+        canvas.addEventListener('mousemove', (e) => {
             if (currentMode !== 'dots') return;
 
             const rect = canvas.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const clickY = e.clientY - rect.top;
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
 
             let closest = null;
             let closestDist = Infinity;
 
             for (const death of lastDeaths) {
                 const { canvasX, canvasY } = gameToCanvas(death.x, death.y);
-                const dist = Math.hypot(clickX - canvasX, clickY - canvasY);
+                const dist = Math.hypot(mouseX - canvasX, mouseY - canvasY);
                 if (dist < closestDist) {
                     closestDist = dist;
                     closest = death;
@@ -204,8 +204,8 @@
 
             if (closest && closestDist < 10) {
                 tooltip.textContent = `${closest.time} - killed by ${closest.killedBy}`;
-                tooltip.style.left = `${clickX + 10}px`;
-                tooltip.style.top = `${clickY + 10}px`;
+                tooltip.style.left = `${mouseX + 10}px`;
+                tooltip.style.top = `${mouseY + 10}px`;
                 tooltip.style.display = 'block';
             } else {
                 tooltip.style.display = 'none';
