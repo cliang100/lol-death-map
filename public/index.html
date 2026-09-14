@@ -28,6 +28,7 @@
     <div class="map-container">
         <img src="rift.png" width="512" height="512" style="position: absolute; top: 0; left: 0;">
         <canvas id="heatmapCanvas" width="512" height="512" style="position: absolute; top: 0; left: 0;"></canvas>
+        <div id="dotTooltip" class="tooltip"></div>
     </div>
     <div class="legend">
         <span>Fewer deaths</span>
@@ -38,7 +39,6 @@
         <button id="heatmapModeBtn" class="active">Heatmap</button>
         <button id="dotsModeBtn">Dots</button>
     </div>
-    <div id="dotTooltip" class="tooltip"></div>
     <pre id="deathList"></pre>
 
     <script>
@@ -204,9 +204,23 @@
 
             if (closest && closestDist < 10) {
                 tooltip.textContent = `${closest.time} - killed by ${closest.killedBy}`;
-                tooltip.style.left = `${mouseX + 10}px`;
-                tooltip.style.top = `${mouseY + 10}px`;
-                tooltip.style.display = 'block';
+                tooltip.style.display = 'block'; // must be visible before measuring its size
+
+                const tooltipWidth = tooltip.offsetWidth;
+                const tooltipHeight = tooltip.offsetHeight;
+
+                let left = mouseX + 10;
+                let top = mouseY + 10;
+
+                if (left + tooltipWidth > canvas.width) {
+                    left = mouseX - tooltipWidth - 10; // flip to the left of the cursor instead
+                }
+                if (top + tooltipHeight > canvas.height) {
+                    top = mouseY - tooltipHeight - 10; // flip above the cursor instead
+                }
+
+                tooltip.style.left = `${left}px`;
+                tooltip.style.top = `${top}px`;
             } else {
                 tooltip.style.display = 'none';
             }
