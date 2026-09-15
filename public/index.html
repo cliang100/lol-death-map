@@ -97,19 +97,32 @@
         // Consider: per-game grouping/filtering (like u.gg's match-by-match breakdown),
         // possibly alongside the map rather than only via tooltip. May need a UI rework,
         // not just a styling pass.
-        function renderDots(deaths) {
+        function renderDots(deaths, hoveredDeath = null) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             for (const death of deaths) {
                 const { canvasX, canvasY } = gameToCanvas(death.x, death.y);
+                const isHovered = death === hoveredDeath;
+
                 ctx.beginPath();
-                ctx.arc(canvasX, canvasY, 5, 0, Math.PI * 2);
-                ctx.fillStyle = '#FFFFFF';
+                ctx.arc(canvasX, canvasY, isHovered ? 8 : 5, 0, Math.PI * 2);
+
+                if (isHovered) {
+                    ctx.shadowColor = '#E8B34C';
+                    ctx.shadowBlur = 12;
+                    ctx.fillStyle = '#F5D48A';
+                } else {
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = 'rgba(207, 201, 188, 0.85)'; // soft cream, matches your text color
+                }
+
                 ctx.strokeStyle = '#12100D';
                 ctx.lineWidth = 1.5;
                 ctx.fill();
                 ctx.stroke();
             }
+
+            ctx.shadowBlur = 0; // reset so it doesn't leak into other draws
         }
 
         function intensityToColor(alpha) {
@@ -201,10 +214,13 @@
             }
 
             const tooltip = document.getElementById('dotTooltip');
+            const hovered = closest && closestDist < 10 ? closest : null;
 
-            if (closest && closestDist < 10) {
-                tooltip.textContent = `${closest.time} - killed by ${closest.killedBy}`;
-                tooltip.style.display = 'block'; // must be visible before measuring its size
+            renderDots(lastDeaths, hovered);
+
+            if (hovered) {
+                tooltip.textContent = `${hovered.time} - killed by ${hovered.killedBy}`;
+                tooltip.style.display = 'block';
 
                 const tooltipWidth = tooltip.offsetWidth;
                 const tooltipHeight = tooltip.offsetHeight;
@@ -212,12 +228,8 @@
                 let left = mouseX + 10;
                 let top = mouseY + 10;
 
-                if (left + tooltipWidth > canvas.width) {
-                    left = mouseX - tooltipWidth - 10; // flip to the left of the cursor instead
-                }
-                if (top + tooltipHeight > canvas.height) {
-                    top = mouseY - tooltipHeight - 10; // flip above the cursor instead
-                }
+                if (left + tooltipWidth > canvas.width) left = mouseX - tooltipWidth - 10;
+                if (top + tooltipHeight > canvas.height) top = mouseY - tooltipHeight - 10;
 
                 tooltip.style.left = `${left}px`;
                 tooltip.style.top = `${top}px`;
