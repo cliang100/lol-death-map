@@ -39,6 +39,10 @@
         <button id="heatmapModeBtn" class="active">Heatmap</button>
         <button id="dotsModeBtn">Dots</button>
     </div>
+    <div class="loading-overlay" id="loading-overlay">
+        <img class="loading-image" src="alistar.gif">
+        <p>Loading...</p>
+    </div>
     <pre id="deathList"></pre>
 
     <script>
@@ -162,6 +166,9 @@
 
             searchBtn.disabled = true;
             searchBtn.textContent = 'Loading...';
+            
+            const loadingOverlay = document.getElementById("loading-overlay");
+            loadingOverlay.style.display = 'block'
 
             const region = document.getElementById('region').value;
             const res = await fetch(`/api/deaths/${region}/${gameName}/${tagLine}`);
@@ -170,6 +177,7 @@
                 document.getElementById('deathList').textContent = 'Could not find that summoner. Check the name and tag.';
                 searchBtn.disabled = false;
                 searchBtn.textContent = 'Search';
+                loadingOverlay.style.display = 'none';
                 return;
             }
 
@@ -189,6 +197,7 @@
             deathListEl.style.display = 'block';
             searchBtn.disabled = false;
             searchBtn.textContent = 'Search';
+            loadingOverlay.style.display = 'none'
         });
 
         // TODO: Switch from click to hover for showing death info (mousemove instead of click listener)

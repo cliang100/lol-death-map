@@ -132,3 +132,35 @@ h1 {
     color: #12100D;
     font-weight: 600;
 }
+
+.loading-overlay {
+    display: none;
+    grid-template-rows: auto auto;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #1a2a3a;
+    border: 3px solid #C89B3C;
+    border-radius: 16px;
+    padding: 12px 12px 40px 12px;
+}
+
+.loading-overlay img {
+    grid-area: 1 / 1;
+    justify-self: center;
+}
+
+.loading-overlay p {
+    grid-row: 2;
+    justify-self: center;
+    margin-top: 50px;
+    color: #C89B3C;
+    text-align: center;
+    font-size: 24px;
+}
+
+.loading-image {
+    max-width: 100%;
+    height: auto;
+}
