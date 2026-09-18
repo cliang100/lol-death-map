@@ -136,6 +136,23 @@ searchBtn.addEventListener('click', async () => {
     const deaths = await res.json();
     const matchCount = new Set(deaths.map(d => d.matchId)).size;
 
+    const killerCounts = {};
+    for (const death of deaths) {
+        killerCounts[death.killedBy] = (killerCounts[death.killedBy] || 0) + 1;
+    }
+    let topKiller = '--';
+    let topCount = 0;
+    for (const killer in killerCounts) {
+        if (killerCounts[killer] > topCount) {
+            topKiller = killer;
+            topCount = killerCounts[killer];
+        }
+    }
+
+    document.getElementById('totalDeathsStat').textContent = deaths.length;
+    document.getElementById('gamesAnalyzedStat').textContent = matchCount;
+    document.getElementById('mostCommonKillerStat').textContent = topKiller;
+
     lastDeaths = deaths;
     renderHeatmap(deaths);
 
