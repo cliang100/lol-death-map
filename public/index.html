@@ -5,7 +5,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>LoL Death Map</h1>
+    <section class="hero-section">
+        <h1>LoL Death Map</h1>
+        <p class="hero-subtitle">See exactly where you keep dying on Summoner's Rift.</p>
+    </section>
 
     <div class="search-bar">
         <input type="text" id="riotId" placeholder="Game name + #NA1">
@@ -24,26 +27,61 @@
         </select>
         <button id="searchBtn">Search</button>
     </div>
+    <div class="page-layout">
+        <div class="sidebar">
+            <div class="stat-box">
+                <p class="stat-label">Total deaths</p>
+                <p class="stat-value">--</p>
+            </div>
+            <div class="stat-box">
+                <p class="stat-label">Games analyzed</p>
+                <p class="stat-value">--</p>
+            </div>
+            <div class="stat-box">
+                <p class="stat-label">Most common killer</p>
+                <p class="stat-value">--</p>
+            </div>
+        </div>
+        <div class="content-panel">
+            <div class="map-container">
+                <img src="rift.png" width="512" height="512" style="position: absolute; top: 0; left: 0;">
+                <canvas id="heatmapCanvas" width="512" height="512" style="position: absolute; top: 0; left: 0;"></canvas>
+                <div id="dotTooltip" class="tooltip"></div>
+            </div>
+            <div class="legend">
+                <span>Fewer deaths</span>
+                <div class="legend-bar"></div>
+                <span>More deaths</span>
+            </div>
+            <div class="view-toggle">
+                <button id="heatmapModeBtn" class="active">Heatmap</button>
+                <button id="dotsModeBtn">Dots</button>
+            </div>
+            <div class="loading-overlay" id="loading-overlay">
+                <img class="loading-image" src="alistar.gif">
+                <p>Loading...</p>
+            </div>
+            <pre id="deathList"></pre>
+        </div>
+    </div>
 
-    <div class="map-container">
-        <img src="rift.png" width="512" height="512" style="position: absolute; top: 0; left: 0;">
-        <canvas id="heatmapCanvas" width="512" height="512" style="position: absolute; top: 0; left: 0;"></canvas>
-        <div id="dotTooltip" class="tooltip"></div>
-    </div>
-    <div class="legend">
-        <span>Fewer deaths</span>
-        <div class="legend-bar"></div>
-        <span>More deaths</span>
-    </div>
-    <div class="view-toggle">
-        <button id="heatmapModeBtn" class="active">Heatmap</button>
-        <button id="dotsModeBtn">Dots</button>
-    </div>
-    <div class="loading-overlay" id="loading-overlay">
-        <img class="loading-image" src="alistar.gif">
-        <p>Loading...</p>
-    </div>
-    <pre id="deathList"></pre>
+    <section class="how-it-works">
+        <h2>How it works</h2>
+        <div class="steps-row">
+            <div class="step">
+                <p class="step-number">1</p>
+                <p>Enter your Riot ID</p>
+            </div>
+            <div class="step">
+                <p class="step-number">2</p>
+                <p>We pull your last 20 SR games</p>
+            </div>
+            <div class="step">
+                <p class="step-number">3</p>
+                <p>See your death hotspots</p>
+            </div>
+        </div>
+    </section>
 
     <script>
         const searchBtn = document.getElementById('searchBtn');
@@ -191,8 +229,9 @@
 
             if (deaths.length === 0) {
                 deathListEl.textContent = 'No deaths found in recent Summoner\'s Rift games';
+                deathListEl.style.display = 'block';
             } else {
-                deathListEl.textContent = `${deaths.length} deaths across ${matchCount} games`;
+                deathListEl.style.display = 'none';
             }
             deathListEl.style.display = 'block';
             searchBtn.disabled = false;
