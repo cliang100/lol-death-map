@@ -152,9 +152,6 @@ searchBtn.addEventListener('click', async () => {
     loadingOverlay.style.display = 'none'
 });
 
-// TODO: Switch from click to hover for showing death info (mousemove instead of click listener)
-// TODO: Dot styling feels jarring (plain white) - explore softer color/opacity, plus a
-//       hover animation or glow effect instead of a static circle
 canvas.addEventListener('mousemove', (e) => {
     if (currentMode !== 'dots') return;
 
