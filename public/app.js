@@ -69,7 +69,7 @@ function renderDots(deaths, hoveredDeath = null) {
             ctx.fillStyle = '#F5D48A';
         } else {
             ctx.shadowBlur = 0;
-            ctx.fillStyle = 'rgba(207, 201, 188, 0.85)'; // soft cream, matches your text color
+            ctx.fillStyle = 'rgba(207, 201, 188, 0.85)';
         }
 
         ctx.strokeStyle = '#12100D';
@@ -78,7 +78,7 @@ function renderDots(deaths, hoveredDeath = null) {
         ctx.stroke();
     }
 
-    ctx.shadowBlur = 0; // reset so it doesn't leak into other draws
+    ctx.shadowBlur = 0;
 }
 
 function intensityToColor(alpha) {
@@ -105,10 +105,7 @@ function intensityToColor(alpha) {
     return stops[stops.length - 1][1];
 }
 
-searchBtn.addEventListener('click', async () => {
-    const raw = document.getElementById('riotId').value;
-    const [gameName, tagLine] = raw.split('#').map(s => s.trim());
-
+async function performSearch(gameName, tagLine, region) {
     if (!gameName || !tagLine) {
         const deathListEl = document.getElementById('deathList');
         deathListEl.textContent = 'Enter a Riot ID like Name#Tag';
@@ -122,7 +119,6 @@ searchBtn.addEventListener('click', async () => {
     const loadingOverlay = document.getElementById("loading-overlay");
     loadingOverlay.style.display = 'block'
 
-    const region = document.getElementById('region').value;
     const res = await fetch(`/api/deaths/${region}/${gameName}/${tagLine}`);
 
     if (!res.ok) {
@@ -167,6 +163,13 @@ searchBtn.addEventListener('click', async () => {
     searchBtn.disabled = false;
     searchBtn.textContent = 'Search';
     loadingOverlay.style.display = 'none'
+}
+
+searchBtn.addEventListener('click', () => {
+    const raw = document.getElementById('riotId').value;
+    const [gameName, tagLine] = raw.split('#').map(s => s.trim());
+    const region = document.getElementById('region').value;
+    performSearch(gameName, tagLine, region);
 });
 
 canvas.addEventListener('mousemove', (e) => {
@@ -233,3 +236,22 @@ document.getElementById('dotsModeBtn').addEventListener('click', () => {
     document.getElementById('heatmapModeBtn').classList.remove('active');
     renderDots(lastDeaths);
 });
+
+const params = new URLSearchParams(window.location.search);
+const urlRiotId = params.get('riotId');
+const urlTag = params.get('tag');
+const urlRegion = params.get('region');
+const storedData = sessionStorage.getItem('deathData');
+
+if (urlRiotId && urlTag) {
+    document.getElementById('riotId').value = `${urlRiotId}#${urlTag}`;
+    document.getElementById('region').value = urlRegion || 'na1';
+
+    if (storedData) {
+        const deaths = JSON.parse(storedData);
+        sessionStorage.removeItem('deathData');
+        renderSearchResults(deaths);
+    } else {
+        performSearch(urlRiotId, urlTag, urlRegion || 'na1');
+    }
+}

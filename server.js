@@ -1,9 +1,11 @@
 const express = require('express');
 const { getDeathData } = require('./riotApi');
+const cors = require('cors');
 
 const app = express();
 const PORT = 3000;
 
+app.use(cors());
 app.use(express.static('public'));
 
 app.get('/api/deaths/:region/:gameName/:tagLine', async(req, res) => {
