@@ -13,6 +13,7 @@ body {
 h1 {
     font-family: 'Oswald', sans-serif;
     font-weight: 600;
+    font-size: 42px;
     letter-spacing: 0.5px;
     margin-bottom: 4px;
     border-bottom: 2px solid #E8B34C;
@@ -241,4 +242,28 @@ h1 {
     color: #E8B34C;
     font-weight: bold;
     margin: 0 0 8px;
+}
+
+.summoner-info {
+    text-align: left;
+    max-width: 512px;
+    width: 100%;
+    background: #22201c;
+    border: 1px solid #3a352c;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.summoner-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 20px;
+    color: #CFC9BC;
+    margin: 0;
+}
+
+.summoner-region {
+    font-size: 13px;
+    color: #aaa;
+    margin: 4px 0 0;
 }

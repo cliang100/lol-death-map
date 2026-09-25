@@ -5,11 +5,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <section class="hero-section">
-        <h1>LoL Death Map</h1>
-        <p class="hero-subtitle">See exactly where you keep dying on Summoner's Rift.</p>
-    </section>
-
     <div class="search-bar">
         <input type="text" id="riotId" placeholder="Game name + #NA1">
         <select id="region">
@@ -26,6 +21,10 @@
             <option value="ru">RU</option>
         </select>
         <button id="searchBtn">Search</button>
+    </div>
+    <div class="summoner-info">
+        <p class="summoner-name" id="summonerName">--</p>
+        <p class="summoner-region" id="summonerRegion">--</p>
     </div>
     <div class="page-layout">
         <div class="sidebar">
@@ -64,24 +63,6 @@
             <pre id="deathList"></pre>
         </div>
     </div>
-
-    <section class="how-it-works">
-        <h2>How it works</h2>
-        <div class="steps-row">
-            <div class="step">
-                <p class="step-number">1</p>
-                <p>Enter your Riot ID</p>
-            </div>
-            <div class="step">
-                <p class="step-number">2</p>
-                <p>We pull your recent SR games</p>
-            </div>
-            <div class="step">
-                <p class="step-number">3</p>
-                <p>See your death hotspots</p>
-            </div>
-        </div>
-    </section>
 
     <script src="app.js"></script>
 </body>
