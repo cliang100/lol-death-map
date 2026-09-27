@@ -4,15 +4,6 @@ const ctx = canvas.getContext('2d');
 let lastDeaths = []
 let currentMode = 'heatmap';
 
-function gameToCanvas(x, y, canvasSize = 512) {
-    const minX = -120, maxX = 14870;
-    const minY = -120, maxY = 14980;
-
-    const canvasX = ((x - minX) / (maxX - minX)) * canvasSize;
-    const canvasY = canvasSize - ((y - minY) / (maxY - minY)) * canvasSize; // flip Y
-
-    return { canvasX, canvasY };
-}
 
 function renderHeatmap(deaths) {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // wipe any dots from a previous search
@@ -49,6 +40,7 @@ function renderHeatmap(deaths) {
     ctx.putImageData(imageData, 0, 0);
 }
 
+
 // TODO: Revisit what data dots should surface - currently just time + killer.
 // Consider: per-game grouping/filtering (like u.gg's match-by-match breakdown),
 // possibly alongside the map rather than only via tooltip. May need a UI rework,
@@ -81,29 +73,6 @@ function renderDots(deaths, hoveredDeath = null) {
     ctx.shadowBlur = 0;
 }
 
-function intensityToColor(alpha) {
-    const stops = [
-        [0, [0, 0, 255]],   // blue
-        [85, [0, 255, 0]],  // green
-        [170, [255, 255, 0]],   // yellow
-        [255, [255, 0, 0]], // red
-    ];
-
-    for (let i = 0; i < stops.length - 1; i ++) {
-        const [t1, c1] = stops[i];
-        const [t2, c2] = stops[i + 1];
-
-        if (alpha >= t1 && alpha <= t2) {
-            const ratio = (alpha - t1) / (t2 - t1);
-            return [
-                Math.round(c1[0] + (c2[0] - c1[0]) * ratio),
-                Math.round(c1[1] + (c2[1] - c1[1]) * ratio),
-                Math.round(c1[2] + (c2[2] - c1[2]) * ratio),
-            ];
-        }
-    }
-    return stops[stops.length - 1][1];
-}
 
 function renderSearchResults(deaths) {
     const matchCount = new Set(deaths.map(d => d.matchId)).size;
@@ -137,6 +106,7 @@ function renderSearchResults(deaths) {
     }
 }
 
+
 async function performSearch(gameName, tagLine, region) {
     if (!gameName || !tagLine) {
         const deathListEl = document.getElementById('deathList');
@@ -163,7 +133,7 @@ async function performSearch(gameName, tagLine, region) {
 
     const deaths = await res.json();
     renderSearchResults(deaths);
-    
+
     searchBtn.disabled = false;
     searchBtn.textContent = 'Search';
     loadingOverlay.style.display = 'none'
@@ -258,4 +228,8 @@ if (urlRiotId && urlTag) {
     } else {
         performSearch(urlRiotId, urlTag, urlRegion || 'na1');
     }
+}
+
+if (typeof module !== 'undefined') {
+    module.exports = { gameToCanvas, intensityToColor };
 }

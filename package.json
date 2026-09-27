@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "lint": "oxlint"
+    "lint": "oxlint",
+    "test": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,7 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
-    "oxlint": "^1.85.0"
+    "oxlint": "^1.85.0",
+    "vitest": "^5.0.2"
   }
 }
