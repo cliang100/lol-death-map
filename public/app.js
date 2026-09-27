@@ -105,6 +105,38 @@ function intensityToColor(alpha) {
     return stops[stops.length - 1][1];
 }
 
+function renderSearchResults(deaths) {
+    const matchCount = new Set(deaths.map(d => d.matchId)).size;
+
+    const killerCounts = {};
+    for (const death of deaths) {
+        killerCounts[death.killedBy] = (killerCounts[death.killedBy] || 0) + 1;
+    }
+    let topKiller = '--';
+    let topCount = 0;
+    for (const killer in killerCounts) {
+        if (killerCounts[killer] > topCount) {
+            topKiller = killer;
+            topCount = killerCounts[killer];
+        }
+    }
+
+    document.getElementById('totalDeathsStat').textContent = deaths.length;
+    document.getElementById('gamesAnalyzedStat').textContent = matchCount;
+    document.getElementById('mostCommonKillerStat').textContent = topKiller;
+
+    lastDeaths = deaths;
+    renderHeatmap(deaths);
+
+    const deathListEl = document.getElementById('deathList');
+    if (deaths.length === 0) {
+        deathListEl.textContent = 'No deaths found in recent Summoner\'s Rift games';
+        deathListEl.style.display = 'block';
+    } else {
+        deathListEl.style.display = 'none';
+    }
+}
+
 async function performSearch(gameName, tagLine, region) {
     if (!gameName || !tagLine) {
         const deathListEl = document.getElementById('deathList');
@@ -130,36 +162,8 @@ async function performSearch(gameName, tagLine, region) {
     }
 
     const deaths = await res.json();
-    const matchCount = new Set(deaths.map(d => d.matchId)).size;
-
-    const killerCounts = {};
-    for (const death of deaths) {
-        killerCounts[death.killedBy] = (killerCounts[death.killedBy] || 0) + 1;
-    }
-    let topKiller = '--';
-    let topCount = 0;
-    for (const killer in killerCounts) {
-        if (killerCounts[killer] > topCount) {
-            topKiller = killer;
-            topCount = killerCounts[killer];
-        }
-    }
-
-    document.getElementById('totalDeathsStat').textContent = deaths.length;
-    document.getElementById('gamesAnalyzedStat').textContent = matchCount;
-    document.getElementById('mostCommonKillerStat').textContent = topKiller;
-
-    lastDeaths = deaths;
-    renderHeatmap(deaths);
-
-    const deathListEl = document.getElementById('deathList');
-
-    if (deaths.length === 0) {
-        deathListEl.textContent = 'No deaths found in recent Summoner\'s Rift games';
-        deathListEl.style.display = 'block';
-    } else {
-        deathListEl.style.display = 'none';
-    }
+    renderSearchResults(deaths);
+    
     searchBtn.disabled = false;
     searchBtn.textContent = 'Search';
     loadingOverlay.style.display = 'none'
