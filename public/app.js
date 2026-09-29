@@ -1,3 +1,5 @@
+import { gameToCanvas, intensityToColor } from './canvasMath.js';
+
 const searchBtn = document.getElementById('searchBtn');
 const canvas = document.getElementById('heatmapCanvas');
 const ctx = canvas.getContext('2d');
@@ -228,8 +230,4 @@ if (urlRiotId && urlTag) {
     } else {
         performSearch(urlRiotId, urlTag, urlRegion || 'na1');
     }
-}
-
-if (typeof module !== 'undefined') {
-    module.exports = { gameToCanvas, intensityToColor };
 }
